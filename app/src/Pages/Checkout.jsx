@@ -187,7 +187,7 @@ function Checkout() {
             );
                formData.append(
             `order_detail[${index}][selected_size]`,
-            item.product_size || selectedSize || null
+            item.product_size || null
         );
             formData.append(
                 `order_detail[${index}][pack_size]`,
