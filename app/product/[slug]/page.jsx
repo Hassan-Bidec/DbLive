@@ -449,8 +449,8 @@ const [selectedSize, setSelectedSize] = useState(null);
     const lid_Price = Number(selectedLidPrice || 0);
 
     // Optional fields
-    const printing_price = variantPrice;      // Base price per piece
-    const price_per_piece = variantPrice;
+    const printing_price = null;      // Base price per piece
+    const price_per_piece = null;
     const product_variants = selectedProductVariants || null;
     const product_color = null;
     const product_size = selectedSize || null;
