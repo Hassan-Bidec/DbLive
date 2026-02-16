@@ -61,7 +61,7 @@ const [selectedSize, setSelectedSize] = useState(null);
     const dropdownRef = useRef(null);
     const [productUrl, setProductUrl] = useState('');
     // Close dropdown if clicked outside
-
+ const [unitType, setUnitType] = useState("weight");
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -105,7 +105,7 @@ const [selectedSize, setSelectedSize] = useState(null);
 
             setProductLids(resData.product.product_lid_options);
             setProductId(resData.product.id);
-
+setUnitType(resData?.product?.unit_type || "Pcs");
             const firstVariant = resData.product.product_variants.filter(
                 (v) => v.brand_id === firstBrand?.id
             )[0];
@@ -236,6 +236,7 @@ const [selectedSize, setSelectedSize] = useState(null);
             setProductVariants(resData?.product?.product_variants || [])
             setProductLids(resData?.product?.product_lid_options || [])
             setProductId(resData?.product?.id)
+            setUnitType(resData?.product?.unit_type || "Pcs");
             const seletedBrandId = selectedBrand?.id
             if (seletedBrandId && resData?.product?.product_variants?.filter(i => i.brand_id === seletedBrandId)) {
                 console.log(true);
@@ -696,13 +697,15 @@ const [selectedSize, setSelectedSize] = useState(null);
                             Rs {selectedProductVariants[0]?.price}
                         </p>
 
-                  <form onSubmit={handleSubmit} className='max-w-130 w-full flex flex-col gap-5 '>
+            <form onSubmit={handleSubmit} className='max-w-130 w-full flex flex-col gap-5 '>
     {/* Quantity Selection */}
     <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
-        <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center">Pieces</p>
+        <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center">
+            {unitType}
+        </p>
         <div className="flex flex-wrap gap-4 justify-start p-1 px-2 items-center">
             {selectedProductVariants && selectedProductVariants.length > 0 ? (
-                selectedProductVariants.map((variant, index) => (
+                selectedProductVariants.map((variant) => (
                     <div key={variant.id} className="flex flex-row items-center gap-2">
                         <input
                             id={`variant-${variant.id}`}
@@ -710,21 +713,20 @@ const [selectedSize, setSelectedSize] = useState(null);
                             name="variant"
                             value={variant.id}
                             checked={selectedVariantId === variant.id}
-                            // defaultChecked={true}
                             onChange={() => {
                                 setQuantity(variant.pack_size);
                                 setSelectedVariantId(variant.id);
                                 setSelectedVariantPrice(Number(variant.price_per_piece ?? variant.price ?? 0));
                                 setSelectedVariant(variant.pack_size);
-                                // Reset selected size when variant changes
                                 setSelectedSize(null);
-                                // If variant has sizes, select first size by default
                                 if (variant.variantSizes && variant.variantSizes.length > 0) {
                                     setSelectedSize(variant.variantSizes[0].size.size);
                                 }
                             }}
                         />
-                        <label htmlFor={`variant-${variant.id}`}>{variant.pack_size} Pcs</label>
+                        <label htmlFor={`variant-${variant.id}`}>
+                            {variant.pack_size} {variant.name}
+                        </label>
                     </div>
                 ))
             ) : (
@@ -734,57 +736,54 @@ const [selectedSize, setSelectedSize] = useState(null);
     </div>
 
     {/* Variant Size Selection Dropdown */}
- {selectedVariantId && (
-    <>
-        {selectedProductVariants?.find(v => v.id === selectedVariantId)?.variantSizes?.length > 0 ? (
-            <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
-                <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center whitespace-nowrap">
-                    Select Size
-                </p>
-                <div className="flex-1 p-1 px-2">
-                 <select
-  className="w-full h-full py-1.5 px-2  outline-none text-white cursor-pointer"
-  value={selectedSize || ''}
-  onChange={(e) => setSelectedSize(e.target.value)}
->
-  <option value="" disabled className="text-gray-400 ">Choose size</option>
-  {selectedProductVariants
-    .find(v => v.id === selectedVariantId)
-    ?.variantSizes?.map((sizeOption) => (
-      <option
-        key={sizeOption.id}
-        value={sizeOption.size.size}
-        className="text-black bg-white" // dropdown text black
-      >
-        {sizeOption.size.size}
-      </option>
-    ))
-  }
-</select>
-
+    {selectedVariantId && (
+        <>
+            {selectedProductVariants?.find(v => v.id === selectedVariantId)?.variantSizes?.length > 0 ? (
+                <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
+                    <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center whitespace-nowrap">
+                        Select Size
+                    </p>
+                    <div className="flex-1 p-1 px-2">
+                        <select
+                            className="w-full h-full py-1.5 px-2 outline-none text-white cursor-pointer"
+                            value={selectedSize || ''}
+                            onChange={(e) => setSelectedSize(e.target.value)}
+                        >
+                            <option value="" disabled className="text-gray-400">Choose size</option>
+                            {selectedProductVariants
+                                .find(v => v.id === selectedVariantId)
+                                ?.variantSizes?.map((sizeOption) => (
+                                    <option
+                                        key={sizeOption.id}
+                                        value={sizeOption.size.size}
+                                        className="text-black bg-white"
+                                    >
+                                        {sizeOption.size.size}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                    </div>
                 </div>
-            </div>
-        ) : null}
+            ) : null}
 
-        {/* yaha per description and sizes show krdo - {sizeOption.size.size} - {sizeOption.description} */}
-        {selectedSize && selectedProductVariants
-            ?.find(v => v.id === selectedVariantId)
-            ?.variantSizes
-            ?.filter(sizeOption => sizeOption.size.size === selectedSize)
-            .map((sizeOption) => (
-                <div key={sizeOption.id} className="text-sm text-white mt-1">
-                  {sizeOption.description}
-                </div>
-            ))
-        }
-    </>
-)}
-                        
-
+            {selectedSize && selectedProductVariants
+                ?.find(v => v.id === selectedVariantId)
+                ?.variantSizes
+                ?.filter(sizeOption => sizeOption.size.size === selectedSize)
+                .map((sizeOption) => (
+                    <div key={sizeOption.id} className="text-sm text-white mt-1">
+                        {sizeOption.description}
+                    </div>
+                ))
+            }
+        </>
+    )}
 
     <div className='flex flex-row gap-3'>
         <div className="border border-[#1E7773] rounded-md flex flex-row justify-between items-center px-2 w-24 h-10">
             <button
+                type="button"
                 disabled={subQuantity === 1}
                 onClick={() => setSubQuantity(subQuantity - 1)}
             >
@@ -792,6 +791,7 @@ const [selectedSize, setSelectedSize] = useState(null);
             </button>
             <p>{subQuantity}</p>
             <button
+                type="button"
                 onClick={() => {
                     const limit = productDetail.product?.order_limit !== null ? productDetail.product?.order_limit : 1000;
                     if (subQuantity < limit) {
@@ -805,65 +805,73 @@ const [selectedSize, setSelectedSize] = useState(null);
             </button>
         </div>
 
-        <button 
-            className='p-2 pt-3 px-20 bg-[#1E7773] cursor-pointer w-full lg:text-[15px] font-bazaar text-xs rounded-md'
-            onClick={() => handleAddCart(productDetail.product)}
-        >
-            ADD TO CART
-        </button>
+       <button 
+    type="button"
+    className='p-2 pt-3 px-20 bg-[#1E7773] cursor-pointer w-full lg:text-[15px] font-bazaar text-xs rounded-md'
+    onClick={() => {
+        if (productDetail?.product) {
+            handleAddCart(productDetail.product);
+        } else {
+            toast.error("Product details not loaded yet!");
+        }
+    }}
+>
+    ADD TO CART
+</button>
     </div>
 
-    {/* Product Lids Selection*/}
-  {productLids && productLids.length > 0 && (
-    <>
-        <div className="my-form border rounded-lg h32 w-6/7 md:w-96 border-[#1E7773]">
-            <p className="bg-[#1E7773] rounded-t-lg py-0.5 px-5">Lids</p>
-            <div className="flex flex-wrap gap-4 justify-start p-3 items-center">
-                
-                {/* No Lids option */}
-                <input
-                    id="no-lids-option"  // ✅ FIXED: unique ID
-                    type="radio"
-                    name="lid"
-                    checked={selectedLidId === null}
-                    onChange={() => {
-                        setSelectedLidId(null);
-                        setSelectedLidPrice(null);
-                        setSelectedLid(null);
-                        setSelectedImage(productDetail?.product?.product_image[0]?.image);
-                    }}
-                />
-                <label htmlFor="no-lids-option">No Lids</label>  
-
-                {/* Lids list */}
-                {productLids.map((lid) => (
-                    <div key={lid.id} className="flex flex-row items-center justify-center pr-3 gap-2">
+    {/* Product Lids Selection */}
+    {productLids && productLids.length > 0 && (
+        <>
+            <div className="my-form border rounded-lg h32 w-6/7 md:w-96 border-[#1E7773]">
+                <p className="bg-[#1E7773] rounded-t-lg py-0.5 px-5">Lids</p>
+                <div className="flex flex-wrap gap-4 justify-start p-3 items-center">
+                    
+                    {/* No Lids option */}
+                    <div className="flex flex-row items-center gap-2">
                         <input
-                            id={`lid-${lid.id}`}  // ✅ FIXED: prefix added
+                            id="no-lids-option"
                             type="radio"
                             name="lid"
-                            checked={selectedLidId === lid.id}
+                            checked={selectedLidId === null}
                             onChange={() => {
-                                setSelectedLidId(lid.id);
-                                setSelectedLidPrice(lid.price);
-                                setSelectedLid(lid.name);
-                                setSelectedImage(lid.image);
+                                setSelectedLidId(null);
+                                setSelectedLidPrice(0);
+                                setSelectedLid(null);
+                                setSelectedImage(productDetail?.product?.product_image[0]?.image);
                             }}
                         />
-                        <label>{lid.name} Pcs</label>  
+                        <label htmlFor="no-lids-option">No Lids</label>
                     </div>
-                ))}
 
+                    {/* Lids list */}
+                    {productLids.map((lid) => (
+                        <div key={lid.id} className="flex flex-row items-center gap-2">
+                            <input
+                                id={`lid-${lid.id}`}
+                                type="radio"
+                                name="lid"
+                                checked={selectedLidId === lid.id}
+                                onChange={() => {
+                                    setSelectedLidId(lid.id);
+                                    setSelectedLidPrice(lid.price);
+                                    setSelectedLid(lid.name);
+                                    setSelectedImage(lid.image);
+                                }}
+                            />
+                            <label htmlFor={`lid-${lid.id}`}>
+                                {lid.name} {lid.pack_size ? `${lid.pack_size} Pcs` : ''}
+                            </label>
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
-        {(selectedLidId && selectedVariant > 0) && (
-            <p className='text-sm'>Lids Pieces {selectedVariant}</p>
-        )}
-    </>
-)}
-
+            {(selectedLidId && selectedVariant > 0) && (
+                <p className='text-sm'>Lids Pieces {selectedVariant}</p>
+            )}
+        </>
+    )}
 </form>
-
 
 
 
