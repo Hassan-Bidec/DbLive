@@ -58,7 +58,7 @@ export default function CustomDetails() {
     const [logoImage, setLogoImage] = useState(null);
     const [customizeDetail, setCustomizeDetail] = useState('');
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
-    const [printingPrice , setPrintingPrice] = useState(0)
+    const [printingPrice, setPrintingPrice] = useState(0)
     const dropdownRef = useRef(null);
 
     const { addToWishlist } = useWishlist();
@@ -109,7 +109,7 @@ export default function CustomDetails() {
 
     const handleSubmit = (e) => e.preventDefault();
     const handleImageClick = (image) => setSelectedImage(image);
-    
+
     const handleWishlist = async (id) => {
         if (!user) {
             router.push('/login/');
@@ -157,167 +157,167 @@ export default function CustomDetails() {
 
     // Add to cart logic (same as before, unchanged)
     const handleAddCart = async (product) => {
-    if (!selectedOption) {
-        toast.error(`Select a packaging option`);
-        return;
-    }
-    
-    if (!uploadedFile) {
-        toast.error(`Select a file`);
-        return;
-    }
+        if (!selectedOption) {
+            toast.error(`Select a packaging option`);
+            return;
+        }
 
-    const product_id = product.id;
-    const product_name = product.name;
-    const pack_size = Number(selectedPackSize) || 1;
-    const product_quantity = Number(subQuantity) || 1;
-    const total_pieces = pack_size * product_quantity;
+        if (!uploadedFile) {
+            toast.error(`Select a file`);
+            return;
+        }
 
-    // ✅ PER PIECE PRICES (Individual)
-    const price_per_piece = Number(selectedPackPrice || 0);
-    const lid_price_per_piece = Number(selectedLidPrice || 0);
-    const printing_price_per_piece = Number(selectedOptionPrice || 0);
-    
-    // ✅ TOTAL PRINTING PRICE (Pack Size × Printing Price Per Piece)
-    const total_printing_price = printing_price_per_piece * pack_size; 
-    
-    // ✅ TOTAL LID PRICE (Pack Size × Lid Price Per Piece)
-    const total_lid_price = lid_price_per_piece * pack_size;
-    
-    // ✅ TOTAL BASE PRICE (Pack Size × Base Price Per Piece)
-    const total_base_price = price_per_piece * pack_size;
-    
-    // ✅ PRODUCT TOTAL CALCULATION (PER PIECE METHOD)
-    // Per piece total = base + lid + printing
-    const total_per_piece = price_per_piece + lid_price_per_piece + printing_price_per_piece;
-    // Total for all pieces
-    const product_total = (total_per_piece * total_pieces).toFixed(2);
-    const printing_price = Number(selectedOptionPrice) * Number(selectedPackSize || 1)
-    
-    // ✅ ALTERNATIVE: Calculate using pack totals (same result)
-    // const product_total_alt = (
-    //     (total_base_price + total_lid_price + total_printing_price) * product_quantity
-    // ).toFixed(2);
+        const product_id = product.id;
+        const product_name = product.name;
+        const pack_size = Number(selectedPackSize) || 1;
+        const product_quantity = Number(subQuantity) || 1;
+        const total_pieces = pack_size * product_quantity;
 
-    console.log("💰 PRICE BREAKDOWN:", {
-        per_piece: {
-            base: price_per_piece,
-            lid: lid_price_per_piece,
-            printing: printing_price_per_piece,
-            total: total_per_piece,
-            nowprintingprice : printing_price
-        },
-        per_pack: {
-            pack_size,
-            base_pack: total_base_price,
-            lid_pack: total_lid_price,
-            printing_pack: total_printing_price,
-            total_pack: total_base_price + total_lid_price + total_printing_price
-        },
-        quantity: product_quantity,
-        total_pieces,
-        product_total
-    });
+        // ✅ PER PIECE PRICES (Individual)
+        const price_per_piece = Number(selectedPackPrice || 0);
+        const lid_price_per_piece = Number(selectedLidPrice || 0);
+        const printing_price_per_piece = Number(selectedOptionPrice || 0);
 
-    // Apply discount if available
-    let finalTotal = parseFloat(product_total);
-    const discountPercentage = parseFloat(product?.activeDiscount?.discount_percentage);
-    if (!isNaN(discountPercentage) && discountPercentage > 0) {
-        finalTotal = finalTotal - (finalTotal * (discountPercentage / 100));
-    }
+        // ✅ TOTAL PRINTING PRICE (Pack Size × Printing Price Per Piece)
+        const total_printing_price = printing_price_per_piece * pack_size;
 
-    const product_total_final = finalTotal.toFixed(2);
+        // ✅ TOTAL LID PRICE (Pack Size × Lid Price Per Piece)
+        const total_lid_price = lid_price_per_piece * pack_size;
 
-    const product_img = product.image_path;
-    const product_variants = selectedProductVariants;
-    const product_options = productOptions;
-    const product_color = selectedColor || null;
-    const product_size = selectedSize || null;
-    const product_lids = productLid || null;
-    const lid = selectedLidId || null;
-    const lid_Price = lid_price_per_piece; // ✅ Per piece lid price
-    const custom_Note = customizeDetail || null;
-    
-    const option_Price = printing_price_per_piece; // ✅ Per piece printing price
-    const order_limit = product?.order_limit || 1000;
-    const packaging_options = {
-        ...selectedOption,
-        total_price: total_printing_price // ✅ Add total printing price for pack
-    };
+        // ✅ TOTAL BASE PRICE (Pack Size × Base Price Per Piece)
+        const total_base_price = price_per_piece * pack_size;
+
+        // ✅ PRODUCT TOTAL CALCULATION (PER PIECE METHOD)
+        // Per piece total = base + lid + printing
+        const total_per_piece = price_per_piece + lid_price_per_piece + printing_price_per_piece;
+        // Total for all pieces
+        const product_total = (total_per_piece * total_pieces).toFixed(2);
+        const printing_price = Number(selectedOptionPrice) * Number(selectedPackSize || 1)
+
+        // ✅ ALTERNATIVE: Calculate using pack totals (same result)
+        // const product_total_alt = (
+        //     (total_base_price + total_lid_price + total_printing_price) * product_quantity
+        // ).toFixed(2);
+
+        console.log("💰 PRICE BREAKDOWN:", {
+            per_piece: {
+                base: price_per_piece,
+                lid: lid_price_per_piece,
+                printing: printing_price_per_piece,
+                total: total_per_piece,
+                nowprintingprice: printing_price
+            },
+            per_pack: {
+                pack_size,
+                base_pack: total_base_price,
+                lid_pack: total_lid_price,
+                printing_pack: total_printing_price,
+                total_pack: total_base_price + total_lid_price + total_printing_price
+            },
+            quantity: product_quantity,
+            total_pieces,
+            product_total
+        });
+
+        // Apply discount if available
+        let finalTotal = parseFloat(product_total);
+        const discountPercentage = parseFloat(product?.activeDiscount?.discount_percentage);
+        if (!isNaN(discountPercentage) && discountPercentage > 0) {
+            finalTotal = finalTotal - (finalTotal * (discountPercentage / 100));
+        }
+
+        const product_total_final = finalTotal.toFixed(2);
+
+        const product_img = product.image_path;
+        const product_variants = selectedProductVariants;
+        const product_options = productOptions;
+        const product_color = selectedColor || null;
+        const product_size = selectedSize || null;
+        const product_lids = productLid || null;
+        const lid = selectedLidId || null;
+        const lid_Price = lid_price_per_piece; // ✅ Per piece lid price
+        const custom_Note = customizeDetail || null;
+
+        const option_Price = printing_price_per_piece; // ✅ Per piece printing price
+        const order_limit = product?.order_limit || 1000;
+        const packaging_options = {
+            ...selectedOption,
+            total_price: total_printing_price // ✅ Add total printing price for pack
+        };
         setPrintingPrice(packaging_options)
 
-    
-    let logo = null;
-    if (uploadedFile) {
-        try {
-            logo = await convertFileToBase64(uploadedFile);
-        } catch (error) {
-            console.error('Error converting logo to Base64:', error);
+
+        let logo = null;
+        if (uploadedFile) {
+            try {
+                logo = await convertFileToBase64(uploadedFile);
+            } catch (error) {
+                console.error('Error converting logo to Base64:', error);
+            }
         }
-    }
 
-    // ✅ COMPLETE PAYLOAD FOR DEBUGGING
-    const payload = {
-        product_id,
-        product_name,
-        product_quantity,
-        pack_size,
-        total_pieces,
-        printingPrice,
+        // ✅ COMPLETE PAYLOAD FOR DEBUGGING
+        const payload = {
+            product_id,
+            product_name,
+            product_quantity,
+            pack_size,
+            total_pieces,
+            printingPrice,
 
-        // Per piece prices
-        price_per_piece,
-        lid_price_per_piece,
-        printing_price_per_piece,
-        // Pack totals
-        total_base_price,
-        total_lid_price,
-        total_printing_price, // 👈 YAHI WOH VALUE HAI JO DISPLAY HOTI HAI
-        // Final
-        product_total: product_total_final,
-        order_limit
+            // Per piece prices
+            price_per_piece,
+            lid_price_per_piece,
+            printing_price_per_piece,
+            // Pack totals
+            total_base_price,
+            total_lid_price,
+            total_printing_price, // 👈 YAHI WOH VALUE HAI JO DISPLAY HOTI HAI
+            // Final
+            product_total: product_total_final,
+            order_limit
+        };
+
+
+        // Add to cart
+        addToCart(
+            product_id,
+            product_name,
+            printing_price,
+            product_quantity,
+            pack_size,
+            total_pieces,
+            price_per_piece,      // Base price per piece
+            product_img,
+            product_total_final,  // Final total with discount
+            product_variants,
+            product_color,
+            product_size,
+            logo,
+            product_options,
+            product_lids,
+            lid,
+            lid_Price,           // Lid price per piece
+            customizeDetail,
+            option_Price,        // Printing price per piece
+            false,
+            order_limit,
+            packaging_options,   // Packaging options with total_price
+        );
+
+        // Reset form
+        setSelectedSize('');
+        setSelectedColor('');
+        setUploadedFile(null);
+        setCustomizeDetail('');
+        if (document.getElementById('upload-image')) {
+            document.getElementById('upload-image').value = '';
+        }
+        setIsCartModalOpen(true);
+
+        // Success toast with exact values
+        toast.success(`Added to cart!`);
     };
-
-
-    // Add to cart
-    addToCart(
-        product_id,
-        product_name,
-        printing_price,
-        product_quantity,
-        pack_size,
-        total_pieces,
-        price_per_piece,      // Base price per piece
-        product_img,
-        product_total_final,  // Final total with discount
-        product_variants,
-        product_color,
-        product_size,
-        logo,
-        product_options,
-        product_lids,
-        lid,
-        lid_Price,           // Lid price per piece
-        customizeDetail,
-        option_Price,        // Printing price per piece
-        false,
-        order_limit,
-        packaging_options,   // Packaging options with total_price
-    );
-
-    // Reset form
-    setSelectedSize('');
-    setSelectedColor('');
-    setUploadedFile(null);
-    setCustomizeDetail('');
-    if (document.getElementById('upload-image')) {
-        document.getElementById('upload-image').value = '';
-    }
-    setIsCartModalOpen(true);
-    
-    // Success toast with exact values
-    toast.success(`Added to cart!`);
-};
     const handleSelectedBrand = (data) => {
         setSelectedBrands(data.name);
         setSelectedBrandId(data.id);
@@ -686,7 +686,7 @@ export default function CustomDetails() {
                                     </h3>
 
                                     <p className="text-[13px] font-semibold text-white">
-                                         {Number(selectedLidPrice)}
+                                        {Number(selectedLidPrice)}
                                     </p>
                                 </div>
                             )}

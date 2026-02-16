@@ -1,7 +1,7 @@
 // 🟩 Dynamic Metadata Function for Inquiry Form Page
 export async function generateMetadata() {
   const res = await fetch(
-    "https://ecommerce-inventory.thegallerygen.com/api/page/detail/2", 
+    "https://ecommerce-inventory.thegallerygen.com/api/page/detail/2",
     { cache: "no-store" }
   );
 
@@ -35,11 +35,11 @@ export const dynamic = "force-dynamic";
 export default function Page() {
   return (
     <>
-    <Suspense fallback={<div>Loading...</div>}>
-   <CustomDetails />
-</Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <CustomDetails />
+      </Suspense>
 
-     
+
     </>
   );
 }

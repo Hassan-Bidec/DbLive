@@ -53,7 +53,7 @@ function ShopDetails() {
     const [showQtyModal, setShowQtyModal] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [wishlistId, setWishlistId] = useState(null);
-const [selectedSize, setSelectedSize] = useState(null);
+    const [selectedSize, setSelectedSize] = useState(null);
     const { user } = useUser();
     const { addToWishlist, removeFromWishlist } = useWishlist();  // Access the addToWishlist function from context
     const [IsCustomizeable, setIsCustomizeable] = useState([])
@@ -330,7 +330,7 @@ const [selectedSize, setSelectedSize] = useState(null);
             router.push("/login");
             return;
         }
-        console.log("pd",productDetail);
+        console.log("pd", productDetail);
         const variantId = productDetail.product.id
         if (!variantId) {
             toast.error("No product variant available");
@@ -366,7 +366,7 @@ const [selectedSize, setSelectedSize] = useState(null);
         }
     };
 
-     const handleSubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
     };
     const handleSelectedBrand = (data) => {
@@ -389,135 +389,135 @@ const [selectedSize, setSelectedSize] = useState(null);
     };
 
     // Handle Add to Cart Logic
-   const handleAddCart = (product) => {
-    // ❗Check if pieces/variant is not selected
-    if (!selectedVariantId) {
-        toast.warning("Please select pieces before adding to cart!");
-        return;
-    }
+    const handleAddCart = (product) => {
+        // ❗Check if pieces/variant is not selected
+        if (!selectedVariantId) {
+            toast.warning("Please select pieces before adding to cart!");
+            return;
+        }
 
-    // Payload ready karo
-    const payload = {
-        product_id: product?.id,
-        product_name: product?.name,
-        variant_id: selectedVariantId,
-        variant_name: selectedVariant,
-        quantity: quantity || 0,
-        variant_price: selectedVariantPrice || 0,
-        lid_id: selectedLidId,
-        lid_name: selectedLid,
-        lid_price: selectedLidPrice || 0,
-        total_price:
-            (selectedVariantPrice * quantity) +
-            (selectedLidPrice ? selectedLidPrice * quantity : 0),
+        // Payload ready karo
+        const payload = {
+            product_id: product?.id,
+            product_name: product?.name,
+            variant_id: selectedVariantId,
+            variant_name: selectedVariant,
+            quantity: quantity || 0,
+            variant_price: selectedVariantPrice || 0,
+            lid_id: selectedLidId,
+            lid_name: selectedLid,
+            lid_price: selectedLidPrice || 0,
+            total_price:
+                (selectedVariantPrice * quantity) +
+                (selectedLidPrice ? selectedLidPrice * quantity : 0),
+        };
+
+        // 🔥 Console me print
+        console.log("ADD TO CART PAYLOAD:", payload);
+
+        // Modal show karo
+        setShowQtyModal(true);
     };
 
-    // 🔥 Console me print
-    console.log("ADD TO CART PAYLOAD:", payload);
 
-    // Modal show karo
-    setShowQtyModal(true);
-};
+    const confirmAddToCart = () => {
+        const product = productDetail.product;
+        if (!product) return;
 
+        const product_id = product.id;
+        const product_name = product.name;
 
-   const confirmAddToCart = () => {
-    const product = productDetail.product;
-    if (!product) return;
+        const selectedVar = productVariants.find(v => v.id === selectedVariantId);
+        const variantPrice = selectedVar ? Number(selectedVar.price_per_piece ?? selectedVar.price ?? 0) : 0;
 
-    const product_id = product.id;
-    const product_name = product.name;
+        const pack_size = Number(selectedVariant) || 1;
+        const product_quantity = Number(subQuantity) || 1;
+        const total_pieces = pack_size * product_quantity;
 
-    const selectedVar = productVariants.find(v => v.id === selectedVariantId);
-    const variantPrice = selectedVar ? Number(selectedVar.price_per_piece ?? selectedVar.price ?? 0) : 0;
+        // Calculate base and final total with lid and discount
+        const baseTotal = (pack_size * product_quantity * variantPrice) + (pack_size * product_quantity * Number(selectedLidPrice || 0));
+        let finalTotal = baseTotal;
 
-    const pack_size = Number(selectedVariant) || 1;
-    const product_quantity = Number(subQuantity) || 1;
-    const total_pieces = pack_size * product_quantity;
+        const discountPercentage = parseFloat(product?.activeDiscount?.discount_percentage);
+        if (!isNaN(discountPercentage) && discountPercentage > 0) {
+            finalTotal -= baseTotal * (discountPercentage / 100);
+        }
 
-    // Calculate base and final total with lid and discount
-    const baseTotal = (pack_size * product_quantity * variantPrice) + (pack_size * product_quantity * Number(selectedLidPrice || 0));
-    let finalTotal = baseTotal;
+        const product_total = finalTotal.toFixed(2);
+        const product_img = selectedImage || product.product_image?.[0]?.image;
+        const lid = selectedLidId || null;
+        const lid_Price = Number(selectedLidPrice || 0);
 
-    const discountPercentage = parseFloat(product?.activeDiscount?.discount_percentage);
-    if (!isNaN(discountPercentage) && discountPercentage > 0) {
-        finalTotal -= baseTotal * (discountPercentage / 100);
-    }
+        // Optional fields
+        const printing_price = null;      // Base price per piece
+        const price_per_piece = null;
+        const product_variants = selectedProductVariants || null;
+        const product_color = null;
+        const product_size = selectedSize || null;
+        const logo = null;
+        const product_options = null;
+        const product_lids = productLids || null;
+        const customizeDetail = null;
+        const option_Price = 0;
+        const bundle_status = false;
+        const order_limit = product?.order_limit ?? 1000;
+        const packaging_options = null;
 
-    const product_total = finalTotal.toFixed(2);
-    const product_img = selectedImage || product.product_image?.[0]?.image;
-    const lid = selectedLidId || null;
-    const lid_Price = Number(selectedLidPrice || 0);
+        console.log("CONFIRM ADD TO CART PAYLOAD:", {
+            product_id,
+            product_name,
+            printing_price,
+            product_quantity,
+            pack_size,
+            total_pieces,
+            price_per_piece,
+            product_img,
+            product_total,
+            product_variants,
+            product_color,
+            product_size,
+            logo,
+            product_options,
+            product_lids,
+            lid,
+            lid_Price,
+            customizeDetail,
+            option_Price,
+            bundle_status,
+            order_limit,
+            packaging_options,
+        });
 
-    // Optional fields
-    const printing_price = null;      // Base price per piece
-    const price_per_piece = null;
-    const product_variants = selectedProductVariants || null;
-    const product_color = null;
-    const product_size = selectedSize || null;
-    const logo = null;
-    const product_options = null;
-    const product_lids = productLids || null;
-    const customizeDetail = null;
-    const option_Price = 0;
-    const bundle_status = false;
-    const order_limit = product?.order_limit ?? 1000;
-    const packaging_options = null;
+        // Add to cart using context function with correct sequence
+        addToCart(
+            product_id,
+            product_name,
+            printing_price,
+            product_quantity,
+            pack_size,
+            total_pieces,
+            price_per_piece,
+            product_img,
+            product_total,
+            product_variants,
+            product_color,
+            product_size,
+            logo,
+            product_options,
+            product_lids,
+            lid,
+            lid_Price,
+            customizeDetail,
+            option_Price,
+            bundle_status,
+            order_limit,
+            packaging_options
+        );
 
-    console.log("CONFIRM ADD TO CART PAYLOAD:", {
-        product_id,
-        product_name,
-        printing_price,
-        product_quantity,
-        pack_size,
-        total_pieces,
-        price_per_piece,
-        product_img,
-        product_total,
-        product_variants,
-        product_color,
-        product_size,
-        logo,
-        product_options,
-        product_lids,
-        lid,
-        lid_Price,
-        customizeDetail,
-        option_Price,
-        bundle_status,
-        order_limit,
-        packaging_options,
-    });
-
-    // Add to cart using context function with correct sequence
-    addToCart(
-        product_id,
-        product_name,
-        printing_price,
-        product_quantity,
-        pack_size,
-        total_pieces,
-        price_per_piece,
-        product_img,
-        product_total,
-        product_variants,
-        product_color,
-        product_size,
-        logo,
-        product_options,
-        product_lids,
-        lid,
-        lid_Price,
-        customizeDetail,
-        option_Price,
-        bundle_status,
-        order_limit,
-        packaging_options
-    );
-
-    setShowQtyModal(false);
-    setIsCartModalOpen(true);
-    toast.success(`${product.name} added to cart`);
-};
+        setShowQtyModal(false);
+        setIsCartModalOpen(true);
+        toast.success(`${product.name} added to cart`);
+    };
 
 
     console.log("product detail");
@@ -696,173 +696,173 @@ const [selectedSize, setSelectedSize] = useState(null);
                             Rs {selectedProductVariants[0]?.price}
                         </p>
 
-                  <form onSubmit={handleSubmit} className='max-w-130 w-full flex flex-col gap-5 '>
-    {/* Quantity Selection */}
-    <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
-        <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center">Pieces</p>
-        <div className="flex flex-wrap gap-4 justify-start p-1 px-2 items-center">
-            {selectedProductVariants && selectedProductVariants.length > 0 ? (
-                selectedProductVariants.map((variant, index) => (
-                    <div key={variant.id} className="flex flex-row items-center gap-2">
-                        <input
-                            id={`variant-${variant.id}`}
-                            type="radio"
-                            name="variant"
-                            value={variant.id}
-                            checked={selectedVariantId === variant.id}
-                            // defaultChecked={true}
-                            onChange={() => {
-                                setQuantity(variant.pack_size);
-                                setSelectedVariantId(variant.id);
-                                setSelectedVariantPrice(Number(variant.price_per_piece ?? variant.price ?? 0));
-                                setSelectedVariant(variant.pack_size);
-                                // Reset selected size when variant changes
-                                setSelectedSize(null);
-                                // If variant has sizes, select first size by default
-                                if (variant.variantSizes && variant.variantSizes.length > 0) {
-                                    setSelectedSize(variant.variantSizes[0].size.size);
-                                }
-                            }}
-                        />
-                        <label htmlFor={`variant-${variant.id}`}>{variant.pack_size} Pcs</label>
-                    </div>
-                ))
-            ) : (
-                <p>No variants available.</p>
-            )}
-        </div>
-    </div>
+                        <form onSubmit={handleSubmit} className='max-w-130 w-full flex flex-col gap-5 '>
+                            {/* Quantity Selection */}
+                            <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
+                                <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center">Pieces</p>
+                                <div className="flex flex-wrap gap-4 justify-start p-1 px-2 items-center">
+                                    {selectedProductVariants && selectedProductVariants.length > 0 ? (
+                                        selectedProductVariants.map((variant, index) => (
+                                            <div key={variant.id} className="flex flex-row items-center gap-2">
+                                                <input
+                                                    id={`variant-${variant.id}`}
+                                                    type="radio"
+                                                    name="variant"
+                                                    value={variant.id}
+                                                    checked={selectedVariantId === variant.id}
+                                                    // defaultChecked={true}
+                                                    onChange={() => {
+                                                        setQuantity(variant.pack_size);
+                                                        setSelectedVariantId(variant.id);
+                                                        setSelectedVariantPrice(Number(variant.price_per_piece ?? variant.price ?? 0));
+                                                        setSelectedVariant(variant.pack_size);
+                                                        // Reset selected size when variant changes
+                                                        setSelectedSize(null);
+                                                        // If variant has sizes, select first size by default
+                                                        if (variant.variantSizes && variant.variantSizes.length > 0) {
+                                                            setSelectedSize(variant.variantSizes[0].size.size);
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor={`variant-${variant.id}`}>{variant.pack_size} Pcs</label>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No variants available.</p>
+                                    )}
+                                </div>
+                            </div>
 
-    {/* Variant Size Selection Dropdown */}
- {selectedVariantId && (
-    <>
-        {selectedProductVariants?.find(v => v.id === selectedVariantId)?.variantSizes?.length > 0 ? (
-            <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
-                <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center whitespace-nowrap">
-                    Select Size
-                </p>
-                <div className="flex-1 p-1 px-2">
-                 <select
-  className="w-full h-full py-1.5 px-2  outline-none text-white cursor-pointer"
-  value={selectedSize || ''}
-  onChange={(e) => setSelectedSize(e.target.value)}
->
-  <option value="" disabled className="text-gray-400 ">Choose size</option>
-  {selectedProductVariants
-    .find(v => v.id === selectedVariantId)
-    ?.variantSizes?.map((sizeOption) => (
-      <option
-        key={sizeOption.id}
-        value={sizeOption.size.size}
-        className="text-black bg-white" // dropdown text black
-      >
-        {sizeOption.size.size}
-      </option>
-    ))
-  }
-</select>
+                            {/* Variant Size Selection Dropdown */}
+                            {selectedVariantId && (
+                                <>
+                                    {selectedProductVariants?.find(v => v.id === selectedVariantId)?.variantSizes?.length > 0 ? (
+                                        <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
+                                            <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center whitespace-nowrap">
+                                                Select Size
+                                            </p>
+                                            <div className="flex-1 p-1 px-2">
+                                                <select
+                                                    className="w-full h-full py-1.5 px-2  outline-none text-white cursor-pointer"
+                                                    value={selectedSize || ''}
+                                                    onChange={(e) => setSelectedSize(e.target.value)}
+                                                >
+                                                    <option value="" disabled className="text-gray-400 ">Choose size</option>
+                                                    {selectedProductVariants
+                                                        .find(v => v.id === selectedVariantId)
+                                                        ?.variantSizes?.map((sizeOption) => (
+                                                            <option
+                                                                key={sizeOption.id}
+                                                                value={sizeOption.size.size}
+                                                                className="text-black bg-white" // dropdown text black
+                                                            >
+                                                                {sizeOption.size.size}
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </select>
 
-                </div>
-            </div>
-        ) : null}
+                                            </div>
+                                        </div>
+                                    ) : null}
 
-        {/* yaha per description and sizes show krdo - {sizeOption.size.size} - {sizeOption.description} */}
-        {selectedSize && selectedProductVariants
-            ?.find(v => v.id === selectedVariantId)
-            ?.variantSizes
-            ?.filter(sizeOption => sizeOption.size.size === selectedSize)
-            .map((sizeOption) => (
-                <div key={sizeOption.id} className="text-sm text-white mt-1">
-                  {sizeOption.description}
-                </div>
-            ))
-        }
-    </>
-)}
-                        
+                                    {/* yaha per description and sizes show krdo - {sizeOption.size.size} - {sizeOption.description} */}
+                                    {selectedSize && selectedProductVariants
+                                        ?.find(v => v.id === selectedVariantId)
+                                        ?.variantSizes
+                                        ?.filter(sizeOption => sizeOption.size.size === selectedSize)
+                                        .map((sizeOption) => (
+                                            <div key={sizeOption.id} className="text-sm text-white mt-1">
+                                                {sizeOption.description}
+                                            </div>
+                                        ))
+                                    }
+                                </>
+                            )}
 
 
-    <div className='flex flex-row gap-3'>
-        <div className="border border-[#1E7773] rounded-md flex flex-row justify-between items-center px-2 w-24 h-10">
-            <button
-                disabled={subQuantity === 1}
-                onClick={() => setSubQuantity(subQuantity - 1)}
-            >
-                -
-            </button>
-            <p>{subQuantity}</p>
-            <button
-                onClick={() => {
-                    const limit = productDetail.product?.order_limit !== null ? productDetail.product?.order_limit : 1000;
-                    if (subQuantity < limit) {
-                        setSubQuantity(subQuantity + 1);
-                    } else {
-                        toast.warning(`Maximum order limit (${limit}) reached!`);
-                    }
-                }}
-            >
-                +
-            </button>
-        </div>
 
-        <button 
-            className='p-2 pt-3 px-20 bg-[#1E7773] cursor-pointer w-full lg:text-[15px] font-bazaar text-xs rounded-md'
-            onClick={() => handleAddCart(productDetail.product)}
-        >
-            ADD TO CART
-        </button>
-    </div>
+                            <div className='flex flex-row gap-3'>
+                                <div className="border border-[#1E7773] rounded-md flex flex-row justify-between items-center px-2 w-24 h-10">
+                                    <button
+                                        disabled={subQuantity === 1}
+                                        onClick={() => setSubQuantity(subQuantity - 1)}
+                                    >
+                                        -
+                                    </button>
+                                    <p>{subQuantity}</p>
+                                    <button
+                                        onClick={() => {
+                                            const limit = productDetail.product?.order_limit !== null ? productDetail.product?.order_limit : 1000;
+                                            if (subQuantity < limit) {
+                                                setSubQuantity(subQuantity + 1);
+                                            } else {
+                                                toast.warning(`Maximum order limit (${limit}) reached!`);
+                                            }
+                                        }}
+                                    >
+                                        +
+                                    </button>
+                                </div>
 
-    {/* Product Lids Selection*/}
-  {productLids && productLids.length > 0 && (
-    <>
-        <div className="my-form border rounded-lg h32 w-6/7 md:w-96 border-[#1E7773]">
-            <p className="bg-[#1E7773] rounded-t-lg py-0.5 px-5">Lids</p>
-            <div className="flex flex-wrap gap-4 justify-start p-3 items-center">
-                
-                {/* No Lids option */}
-                <input
-                    id="no-lids-option"  // ✅ FIXED: unique ID
-                    type="radio"
-                    name="lid"
-                    checked={selectedLidId === null}
-                    onChange={() => {
-                        setSelectedLidId(null);
-                        setSelectedLidPrice(null);
-                        setSelectedLid(null);
-                        setSelectedImage(productDetail?.product?.product_image[0]?.image);
-                    }}
-                />
-                <label htmlFor="no-lids-option">No Lids</label>  
+                                <button
+                                    className='p-2 pt-3 px-20 bg-[#1E7773] cursor-pointer w-full lg:text-[15px] font-bazaar text-xs rounded-md'
+                                    onClick={() => handleAddCart(productDetail.product)}
+                                >
+                                    ADD TO CART
+                                </button>
+                            </div>
 
-                {/* Lids list */}
-                {productLids.map((lid) => (
-                    <div key={lid.id} className="flex flex-row items-center justify-center pr-3 gap-2">
-                        <input
-                            id={`lid-${lid.id}`}  // ✅ FIXED: prefix added
-                            type="radio"
-                            name="lid"
-                            checked={selectedLidId === lid.id}
-                            onChange={() => {
-                                setSelectedLidId(lid.id);
-                                setSelectedLidPrice(lid.price);
-                                setSelectedLid(lid.name);
-                                setSelectedImage(lid.image);
-                            }}
-                        />
-                        <label>{lid.name} Pcs</label>  
-                    </div>
-                ))}
+                            {/* Product Lids Selection*/}
+                            {productLids && productLids.length > 0 && (
+                                <>
+                                    <div className="my-form border rounded-lg h32 w-6/7 md:w-96 border-[#1E7773]">
+                                        <p className="bg-[#1E7773] rounded-t-lg py-0.5 px-5">Lids</p>
+                                        <div className="flex flex-wrap gap-4 justify-start p-3 items-center">
 
-            </div>
-        </div>
-        {(selectedLidId && selectedVariant > 0) && (
-            <p className='text-sm'>Lids Pieces {selectedVariant}</p>
-        )}
-    </>
-)}
+                                            {/* No Lids option */}
+                                            <input
+                                                id="no-lids-option"  // ✅ FIXED: unique ID
+                                                type="radio"
+                                                name="lid"
+                                                checked={selectedLidId === null}
+                                                onChange={() => {
+                                                    setSelectedLidId(null);
+                                                    setSelectedLidPrice(null);
+                                                    setSelectedLid(null);
+                                                    setSelectedImage(productDetail?.product?.product_image[0]?.image);
+                                                }}
+                                            />
+                                            <label htmlFor="no-lids-option">No Lids</label>
 
-</form>
+                                            {/* Lids list */}
+                                            {productLids.map((lid) => (
+                                                <div key={lid.id} className="flex flex-row items-center justify-center pr-3 gap-2">
+                                                    <input
+                                                        id={`lid-${lid.id}`}  // ✅ FIXED: prefix added
+                                                        type="radio"
+                                                        name="lid"
+                                                        checked={selectedLidId === lid.id}
+                                                        onChange={() => {
+                                                            setSelectedLidId(lid.id);
+                                                            setSelectedLidPrice(lid.price);
+                                                            setSelectedLid(lid.name);
+                                                            setSelectedImage(lid.image);
+                                                        }}
+                                                    />
+                                                    <label>{lid.name} Pcs</label>
+                                                </div>
+                                            ))}
+
+                                        </div>
+                                    </div>
+                                    {(selectedLidId && selectedVariant > 0) && (
+                                        <p className='text-sm'>Lids Pieces {selectedVariant}</p>
+                                    )}
+                                </>
+                            )}
+
+                        </form>
 
 
 

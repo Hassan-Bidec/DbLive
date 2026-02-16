@@ -20,8 +20,8 @@ export default function BundleDetail() {
 
   // 🔥 FIX: slug fetch correctly
   const params = useParams();
-  const {slug }= params;   // <-- FIX (NOT params.id)
-console.log("idddd" , slug);
+  const { slug } = params;   // <-- FIX (NOT params.id)
+  console.log("idddd", slug);
 
   const [productDetail, setProductDetail] = useState(null);
   const [productImages, setProductImages] = useState([]);
@@ -36,71 +36,71 @@ console.log("idddd" , slug);
   // ----------------------------------------
   //   📌 Fetch Bundle by id
   // ----------------------------------------
-// Rename the function
-const fetchDataBySlug = async (slug) => {
-  if (!slug) return;
+  // Rename the function
+  const fetchDataBySlug = async (slug) => {
+    if (!slug) return;
 
-  setIsLoading(true);
+    setIsLoading(true);
 
-  try {
-    const response = await axios.public.post("bundles/getBySlug", { slug: `${slug}/` });
-    const resData = response.data.data;
-    console.log("response", resData);
+    try {
+      const response = await axios.public.post("bundles/getBySlug", { slug: `${slug}/` });
+      const resData = response.data.data;
+      console.log("response", resData);
 
-    setProductDetail(resData);
-    setProductImages(resData?.bundle_images || []);
-    setSelectedImage(resData?.bundle_images?.[0]?.image || "");
-  } catch (error) {
-    console.error("Error fetching bundle:", error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setProductDetail(resData);
+      setProductImages(resData?.bundle_images || []);
+      setSelectedImage(resData?.bundle_images?.[0]?.image || "");
+    } catch (error) {
+      console.error("Error fetching bundle:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-// ✅ Call the correct function in useEffect
-useEffect(() => {
-  if (slug) fetchDataBySlug(slug);
-}, [slug]);
+  // ✅ Call the correct function in useEffect
+  useEffect(() => {
+    if (slug) fetchDataBySlug(slug);
+  }, [slug]);
 
 
   // ----------------------------------------
   //   🛒 Add To Cart
   // ----------------------------------------
   const handleAddCart = (product) => {
-  if (!product) return;
+    if (!product) return;
 
-  const pricePerPiece = Number(product.payable_amount) || 0;
-  const quantity = Number(subQuantity) || 1;
+    const pricePerPiece = Number(product.payable_amount) || 0;
+    const quantity = Number(subQuantity) || 1;
 
-  const total = (pricePerPiece * quantity).toFixed(2);
+    const total = (pricePerPiece * quantity).toFixed(2);
 
-  addToCart(
-    product.id,                 // product_id
-    product.name,               // product_name
-    0,                          // printing_price
-    quantity,                   // product_quantity
-    null,                       // pack_size
-    quantity,                   // total_pieces
-    pricePerPiece,              // price_per_piece
-    selectedImage,              // product_img
-    Number(total),              // product_total
-    null,                       // product_variants
-    null,                       // product_color
-    null,                       // product_size
-    null,                       // logo
-    null,                       // product_options
-    null,                       // product_lids
-    null,                       // lid
-    0,                          // lid_Price
-    null,                       // customizeDetail
-    0,                          // option_Price
-    true,                       // bundle_status ✅ (important)
-    product.order_limit || 1000,// order_limit
-    null                        // packaging_options
-  );
+    addToCart(
+      product.id,                 // product_id
+      product.name,               // product_name
+      0,                          // printing_price
+      quantity,                   // product_quantity
+      null,                       // pack_size
+      quantity,                   // total_pieces
+      pricePerPiece,              // price_per_piece
+      selectedImage,              // product_img
+      Number(total),              // product_total
+      null,                       // product_variants
+      null,                       // product_color
+      null,                       // product_size
+      null,                       // logo
+      null,                       // product_options
+      null,                       // product_lids
+      null,                       // lid
+      0,                          // lid_Price
+      null,                       // customizeDetail
+      0,                          // option_Price
+      true,                       // bundle_status ✅ (important)
+      product.order_limit || 1000,// order_limit
+      null                        // packaging_options
+    );
 
-  setIsCartModalOpen(true);
-};
+    setIsCartModalOpen(true);
+  };
 
 
   // ----------------------------------------
@@ -126,7 +126,7 @@ useEffect(() => {
           <Link href="/bundle/">Bundle</Link> / {productDetail?.name}
         </p>
       </div>
-      {console.log("ppp",productDetail)}
+      {console.log("ppp", productDetail)}
 
       <main>
         <section className="flex lg:flex-row flex-col gap-8">

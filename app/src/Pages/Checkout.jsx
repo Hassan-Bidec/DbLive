@@ -72,9 +72,9 @@ function Checkout() {
         // validateField(name, value);
     };
 
-      useEffect(() => {
-   console.log("Cart Items:", cartItems);
-}, [cartItems]);
+    useEffect(() => {
+        console.log("Cart Items:", cartItems);
+    }, [cartItems]);
     // Calculate the subtotal of the cart
     const calculateSubtotal = () => {
         return cartItems.reduce((total, item) => {
@@ -118,241 +118,241 @@ function Checkout() {
         handleCheckOut();
     }
     const handleCheckOut = async () => {
-    const userData = JSON.parse(localStorage.getItem("user_data"));
-    const userId = userData ? userData.user_id : null;
+        const userData = JSON.parse(localStorage.getItem("user_data"));
+        const userId = userData ? userData.user_id : null;
 
-    // Validation
-    const emptyFields = [];
-    if (!first_name) emptyFields.push('first_name');
-    if (!last_name) emptyFields.push('last_name');
-    if (!mobile_no) emptyFields.push('mobile_no');
-    if (!email) emptyFields.push('email');
-    if (!billing_address) emptyFields.push('billing_address');
-    if (!selectedAreaId) emptyFields.push('selectedAreaId');
+        // Validation
+        const emptyFields = [];
+        if (!first_name) emptyFields.push('first_name');
+        if (!last_name) emptyFields.push('last_name');
+        if (!mobile_no) emptyFields.push('mobile_no');
+        if (!email) emptyFields.push('email');
+        if (!billing_address) emptyFields.push('billing_address');
+        if (!selectedAreaId) emptyFields.push('selectedAreaId');
 
-    if (emptyFields.length === Object.keys(requiredFields).length) {
-        toast.error("Please fill all fields");
-        return;
-    } else if (emptyFields.length > 0) {
-        const newErrors = {};
-        emptyFields.forEach(field => {
-            newErrors[field] = `Please fill ${requiredFields[field]}`;
-        });
-        setErrors(newErrors);
-        toast.error(emptyFields.map(field => `Please fill ${requiredFields[field]}`).join(', '));
-        return;
-    }
-
-    // Clear errors if validation passes
-    setErrors({});
-
-    // Validate mobile number (min 7 digits, max 15 digits)
-    if (!/^\d{7,15}$/.test(mobile_no)) {
-        toast.error("Please enter a valid mobile number (7 to 15 digits).");
-        return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("order_date", formattedDate);
-    formData.append("first_name", first_name);
-    formData.append("last_name", last_name);
-    formData.append("email", email);
-    formData.append("mobile_no", mobile_no);
-    formData.append("sub_total", subtotal);
-    formData.append("area_id", selectedAreaId);
-    formData.append("grand_total", total);
-    formData.append("billing_address", billing_address);
-    formData.append("special_instruction", special_instruction);
-    formData.append("continue_as_guest", user ? 0 : 1);
-    formData.append("user_id", user ? userId : null);
-
-    // Add product details
-    cartItems.forEach((item, index) => {
-        console.log("Processing item:", item); // Debug log for each item
-        if (item.bundle_status == false) {
-            const matchedOption = item.product_options?.find(
-                (option) =>
-                    option.size === item.product_size &&
-                    option.option === item.product_color
-            );
-
-            formData.append(
-                `order_detail[${index}][product_id]`,
-                item.product_id
-            );
-            formData.append(
-                `order_detail[${index}][quantity]`,
-                item.product_quantity
-            );
-               formData.append(
-            `order_detail[${index}][selected_size]`,
-            item.product_size || null
-        );
-            formData.append(
-                `order_detail[${index}][pack_size]`,
-                item.pack_size
-            );
-            formData.append(
-                `order_detail[${index}][total_pieces]`,
-                item.total_pieces
-            );
-            formData.append(
-                `order_detail[${index}][product_sub_total]`,
-                item.product_total
-            );
-            formData.append(
-                `order_detail[${index}][_is_customize]`,
-                item.logo ? 1 : 0
-            );
-            
-
-            if (matchedOption) {
-                formData.append(
-                    `order_detail[${index}][product_option_id]`,
-                    matchedOption.id
-                );
-            }
-
-            formData.append(
-                `order_detail[${index}][customizeDetail]`,
-                item.customizeDetail ? item.customizeDetail : null
-            );
-
-            formData.append(
-                `order_detail[${index}][packagingOptions][print_location]`,
-                item.packaging_options ? item.packaging_options?.print_location : null
-            );
-            formData.append(
-                `order_detail[${index}][packagingOptions][side_option]`,
-                item.packaging_options ? item.packaging_options?.side_option : null
-            );
-            formData.append(
-                `order_detail[${index}][packagingOptions][price]`,
-                item.packaging_options ? item.packaging_options?.price : null
-            );
-
-            formData.append(
-                `order_detail[${index}][lid]`,
-                item.lid
-            );
-            formData.append(
-  `order_detail[${index}][lid_price]`,
-  item.lid_Price ? item.lid_Price : 0
-);
-
-formData.append(
-  `order_detail[${index}][printing_price]`,
-  item.printing_price ? item.printing_price : 0
-);
-const debugPayload = {};
-
-formData.forEach((value, key) => {
-    debugPayload[key] = value;
-});
-
-console.log("Final Payload Object:", debugPayload);
-
-
-            if (item.logo) {
-                const blob = base64ToBlob(item.logo);
-                formData.append(
-                    `order_detail[${index}][customize_logo_image]`,
-                    blob,
-                    "customized-logo.png"
-                );
-            }
-        }
-    });
-
-    // Bundles
-    cartItems.forEach((item, index) => {
-        if (item.bundle_status == true) {
-            formData.append(`bundle_ids[${index}]`, item.product_id);
-            formData.append(`bundle_qtys[${index}]`, item.product_quantity);
-        }
-    });
-
-    try {
-        setIsModal(false);
-
-        const response = await axios.public.post("order/place", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
-
-        const { status, message, order_id } = response.data;
-
-        // --- WARNING ---
-        if (status === "warning") {
-            toast.warning(message);
+        if (emptyFields.length === Object.keys(requiredFields).length) {
+            toast.error("Please fill all fields");
+            return;
+        } else if (emptyFields.length > 0) {
+            const newErrors = {};
+            emptyFields.forEach(field => {
+                newErrors[field] = `Please fill ${requiredFields[field]}`;
+            });
+            setErrors(newErrors);
+            toast.error(emptyFields.map(field => `Please fill ${requiredFields[field]}`).join(', '));
             return;
         }
 
-        // --- ERROR ---
-        if (status === "error") {
-            toast.error(message);
+        // Clear errors if validation passes
+        setErrors({});
+
+        // Validate mobile number (min 7 digits, max 15 digits)
+        if (!/^\d{7,15}$/.test(mobile_no)) {
+            toast.error("Please enter a valid mobile number (7 to 15 digits).");
             return;
         }
 
-        // --- SUCCESS ---
-        if (status === "success") {
-            // Show API message directly
-            toast.success(message);
+        const formData = new FormData();
 
-            // Confetti
-            confettiRef.current.addConfetti({
-                confettiRadius: 5,
-                confettiNumber: 300,
+        formData.append("order_date", formattedDate);
+        formData.append("first_name", first_name);
+        formData.append("last_name", last_name);
+        formData.append("email", email);
+        formData.append("mobile_no", mobile_no);
+        formData.append("sub_total", subtotal);
+        formData.append("area_id", selectedAreaId);
+        formData.append("grand_total", total);
+        formData.append("billing_address", billing_address);
+        formData.append("special_instruction", special_instruction);
+        formData.append("continue_as_guest", user ? 0 : 1);
+        formData.append("user_id", user ? userId : null);
+
+        // Add product details
+        cartItems.forEach((item, index) => {
+            console.log("Processing item:", item); // Debug log for each item
+            if (item.bundle_status == false) {
+                const matchedOption = item.product_options?.find(
+                    (option) =>
+                        option.size === item.product_size &&
+                        option.option === item.product_color
+                );
+
+                formData.append(
+                    `order_detail[${index}][product_id]`,
+                    item.product_id
+                );
+                formData.append(
+                    `order_detail[${index}][quantity]`,
+                    item.product_quantity
+                );
+                formData.append(
+                    `order_detail[${index}][selected_size]`,
+                    item.product_size || null
+                );
+                formData.append(
+                    `order_detail[${index}][pack_size]`,
+                    item.pack_size
+                );
+                formData.append(
+                    `order_detail[${index}][total_pieces]`,
+                    item.total_pieces
+                );
+                formData.append(
+                    `order_detail[${index}][product_sub_total]`,
+                    item.product_total
+                );
+                formData.append(
+                    `order_detail[${index}][_is_customize]`,
+                    item.logo ? 1 : 0
+                );
+
+
+                if (matchedOption) {
+                    formData.append(
+                        `order_detail[${index}][product_option_id]`,
+                        matchedOption.id
+                    );
+                }
+
+                formData.append(
+                    `order_detail[${index}][customizeDetail]`,
+                    item.customizeDetail ? item.customizeDetail : null
+                );
+
+                formData.append(
+                    `order_detail[${index}][packagingOptions][print_location]`,
+                    item.packaging_options ? item.packaging_options?.print_location : null
+                );
+                formData.append(
+                    `order_detail[${index}][packagingOptions][side_option]`,
+                    item.packaging_options ? item.packaging_options?.side_option : null
+                );
+                formData.append(
+                    `order_detail[${index}][packagingOptions][price]`,
+                    item.packaging_options ? item.packaging_options?.price : null
+                );
+
+                formData.append(
+                    `order_detail[${index}][lid]`,
+                    item.lid
+                );
+                formData.append(
+                    `order_detail[${index}][lid_price]`,
+                    item.lid_Price ? item.lid_Price : 0
+                );
+
+                formData.append(
+                    `order_detail[${index}][printing_price]`,
+                    item.printing_price ? item.printing_price : 0
+                );
+                const debugPayload = {};
+
+                formData.forEach((value, key) => {
+                    debugPayload[key] = value;
+                });
+
+                console.log("Final Payload Object:", debugPayload);
+
+
+                if (item.logo) {
+                    const blob = base64ToBlob(item.logo);
+                    formData.append(
+                        `order_detail[${index}][customize_logo_image]`,
+                        blob,
+                        "customized-logo.png"
+                    );
+                }
+            }
+        });
+
+        // Bundles
+        cartItems.forEach((item, index) => {
+            if (item.bundle_status == true) {
+                formData.append(`bundle_ids[${index}]`, item.product_id);
+                formData.append(`bundle_qtys[${index}]`, item.product_quantity);
+            }
+        });
+
+        try {
+            setIsModal(false);
+
+            const response = await axios.public.post("order/place", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
             });
 
-            // Prepare invoice data
-            const orderDetails = {
-                orderId: order_id,
-                orderDate: formattedDate,
-                first_name,
-                last_name,
-                email,
-                mobile_no,
-                items: cartItems?.map((item) => ({
-                    productName: item.product_name,
-                    price: item.product_total,
-                    price_per_piece: item.price_per_piece,
-                    quantity: item.total_pieces,
-                    image: item.product_img,
-                })),
-                deliveryInfo: {
-                    address: billing_address,
-                    number: mobile_no,
-                },
-                subtotal: subtotal,
-                deliveryCharges: selectedAreaId ? 150 : 0,
-                grandTotal: total,
-            };
+            const { status, message, order_id } = response.data;
 
-            // Clear cart + fields
-            cartItems.forEach((item) => removeFromCart(item.id));
-            setIsDropdown(false);
-            setSelectedArea("Select Area");
-            setSelectedAreaId(null);
-            setAreaDeliveryCharges(0);
-            setFirst_name("");
-            setLast_name("");
-            setMobileNumber("");
-            setEmail("");
-            setBillingAddress("");
-            setSpecialInstructions("");
-            setDiscount("");
+            // --- WARNING ---
+            if (status === "warning") {
+                toast.warning(message);
+                return;
+            }
 
-            setInvoicedetails(orderDetails);
-            setIsInvoice(true);
+            // --- ERROR ---
+            if (status === "error") {
+                toast.error(message);
+                return;
+            }
+
+            // --- SUCCESS ---
+            if (status === "success") {
+                // Show API message directly
+                toast.success(message);
+
+                // Confetti
+                confettiRef.current.addConfetti({
+                    confettiRadius: 5,
+                    confettiNumber: 300,
+                });
+
+                // Prepare invoice data
+                const orderDetails = {
+                    orderId: order_id,
+                    orderDate: formattedDate,
+                    first_name,
+                    last_name,
+                    email,
+                    mobile_no,
+                    items: cartItems?.map((item) => ({
+                        productName: item.product_name,
+                        price: item.product_total,
+                        price_per_piece: item.price_per_piece,
+                        quantity: item.total_pieces,
+                        image: item.product_img,
+                    })),
+                    deliveryInfo: {
+                        address: billing_address,
+                        number: mobile_no,
+                    },
+                    subtotal: subtotal,
+                    deliveryCharges: selectedAreaId ? 150 : 0,
+                    grandTotal: total,
+                };
+
+                // Clear cart + fields
+                cartItems.forEach((item) => removeFromCart(item.id));
+                setIsDropdown(false);
+                setSelectedArea("Select Area");
+                setSelectedAreaId(null);
+                setAreaDeliveryCharges(0);
+                setFirst_name("");
+                setLast_name("");
+                setMobileNumber("");
+                setEmail("");
+                setBillingAddress("");
+                setSpecialInstructions("");
+                setDiscount("");
+
+                setInvoicedetails(orderDetails);
+                setIsInvoice(true);
+            }
+        } catch (error) {
+            console.log("Form submission error:", error);
+            // toast.error("Something went wrong!");
         }
-    } catch (error) {
-        console.log("Form submission error:", error);
-        // toast.error("Something went wrong!");
-    }
-};
+    };
 
 
     // Convert Base64 image to Blob
@@ -589,23 +589,23 @@ console.log("Final Payload Object:", debugPayload);
                         </div>
                     </div>
                     <h3 className="py-5 text-2xl font-semibold">Payment:</h3>
-           <div className="border-b border-gray-300 py-3">
-    <p className="text-xs mb-2">Delivery Location</p>
+                    <div className="border-b border-gray-300 py-3">
+                        <p className="text-xs mb-2">Delivery Location</p>
 
-    <div className="h-44 w-full rounded-lg overflow-hidden">
-        <MapContainer 
-            center={[24.8607, 67.0011]} 
-            zoom={13} 
-            scrollWheelZoom={false} 
-            className="h-full w-[200px] md:w-full"
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="© OpenStreetMap"
-            />
-        </MapContainer>
-    </div>
-</div>
+                        <div className="h-44 w-full rounded-lg overflow-hidden">
+                            <MapContainer
+                                center={[24.8607, 67.0011]}
+                                zoom={13}
+                                scrollWheelZoom={false}
+                                className="h-full w-[200px] md:w-full"
+                            >
+                                <TileLayer
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    attribution="© OpenStreetMap"
+                                />
+                            </MapContainer>
+                        </div>
+                    </div>
 
 
                     {/* <img
@@ -741,7 +741,7 @@ console.log("Final Payload Object:", debugPayload);
                                                             className="text-black"
                                                         >
                                                             {variant.pack_size}{" "}
-                                                        - {variant.name}
+                                                            - {variant.name}
                                                         </option>
                                                     )
                                                 )}
@@ -782,8 +782,8 @@ console.log("Final Payload Object:", debugPayload);
                                         </div>
 
                                         <div className="border border-gray-300 w-16 rounded-lg text-sm text-center py-1">
-                                            {product.total_pieces} 
-- {product.name}
+                                            {product.total_pieces}
+                                            - {product.name}
                                         </div>
                                         <p className="flex flex-col gap-0 text-xs">
                                             Rs: {product.product_total}

@@ -48,7 +48,7 @@ export const CartProvider = ({ children }) => {
     order_limit,
     packaging_options
   ) => {
-    console.log("product_totalproduct_total" , product_total)
+    // console.log("product_totalproduct_total" , product_total)
     const newItem = {
       id: uuidv4(),
       product_id,
@@ -88,12 +88,12 @@ export const CartProvider = ({ children }) => {
           const newQuantity = Math.max(1, quantity);
           const packSize = Number(item.pack_size) || 1;
           const productSubTotal =
-  Number(item.price_per_piece || 0) +
-  Number(item.lid_Price || 0) +
-  Number(item.option_Price || 0) +
-  Number(item.printing_price || 0) +   
-  Number(item?.packaging_options?.price || 0);
-  console.log("packaging_optionspackaging_options" , productSubTotal)
+            Number(item.price_per_piece || 0) +
+            Number(item.lid_Price || 0) +
+            Number(item.option_Price || 0) +
+            Number(item.printing_price || 0) +
+            Number(item?.packaging_options?.price || 0);
+          // console.log("packaging_optionspackaging_options", productSubTotal)
 
 
           const newTotalPieces = newQuantity * packSize;

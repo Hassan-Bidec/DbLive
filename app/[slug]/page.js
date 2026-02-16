@@ -25,11 +25,11 @@ const BlogDetail = () => {
 
   const location = usePathname();
   const blogId = location.split("/")[1];
-  
+
   const fetchBlogById = async (blogId) => {
     setIsLoading(true);
     try {
-      const response = await axios.public.post(`blogs/s/details`,{
+      const response = await axios.public.post(`blogs/s/details`, {
         slug: `${blogId}/`,
       });
       if (response.data.status === "warning") {
@@ -97,14 +97,14 @@ const BlogDetail = () => {
 
   return (
     <div className='bg-[#20202C] w-full overflow-x-hidden'>
-      <CustomDetailSeo  
-        title={blog?.blogSeoMetadata?.meta_title} 
-        des={blog?.blogSeoMetadata?.meta_description} 
-        focuskey={blog?.blogSeoMetadata?.focus_keyword} 
-        canonicalUrl={blog?.blogSeoMetadata?.canonical_url} 
+      <CustomDetailSeo
+        title={blog?.blogSeoMetadata?.meta_title}
+        des={blog?.blogSeoMetadata?.meta_description}
+        focuskey={blog?.blogSeoMetadata?.focus_keyword}
+        canonicalUrl={blog?.blogSeoMetadata?.canonical_url}
         schema={blog?.blogSeoMetadata?.schema}
       />
-      
+
       {/* Blog Cover */}
       {blog && (
         <div
@@ -119,7 +119,7 @@ const BlogDetail = () => {
         >
           <div className='pl-2 md:pl-32 pb-24'>
             <div className='flex gap-2'>
-              <p>Categories: {blog.category} -</p> 
+              <p>Categories: {blog.category} -</p>
               <p>{blog.date}</p>
             </div>
             <h1 className='text-2xl md:text-4xl md:w-2/3'>{blog.title}</h1>
@@ -137,7 +137,7 @@ const BlogDetail = () => {
             <RiFilter3Line />
           </button>
         </div>
-        
+
         <div className='flex gap-0'>
           {/* Sidebar */}
           <div className='md:ml-10 ml-0 w-full md:w-72 flex-shrink-0'>
@@ -172,9 +172,8 @@ const BlogSidebar = ({ toggleSidebar, isSidebarOpen, onCategorySelect, categorie
     <div>
       {/* Sidebar Content */}
       <div
-        className={`fixed lg:static lg:block top-0 left-0 min-h-screen md:h-auto overflow-y-auto bg-[#33333F] text-white p-4 lg:rounded-lg transition-transform duration-300 ease-in-out z-50 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 w-72`}
+        className={`fixed lg:static lg:block top-0 left-0 min-h-screen md:h-auto overflow-y-auto bg-[#33333F] text-white p-4 lg:rounded-lg transition-transform duration-300 ease-in-out z-50 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 w-72`}
       >
         {/* Close button for mobile */}
         <div className="lg:hidden flex justify-end mb-4">
