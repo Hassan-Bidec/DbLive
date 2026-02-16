@@ -24,7 +24,7 @@ function ShopDetails() {
     const { slug } = useParams(); // ✅ Correct slug
     const router = useRouter();
 
-    const [productDetail, setProductDetail] = useState([]);
+    const [productDetail, setProductDetail] = useState(null);
     const [productVariants, setProductVariants] = useState([]);
     const [selectedProductVariants, setSelectedProductVariants] = useState([]);
     const [productLids, setProductLids] = useState([]);
@@ -60,6 +60,8 @@ function ShopDetails() {
     const navigate = useRouter()
     const dropdownRef = useRef(null);
     const [productUrl, setProductUrl] = useState('');
+    const [unitType, setUnitType] = useState("weight");
+
     // Close dropdown if clicked outside
 
     useEffect(() => {
@@ -104,7 +106,9 @@ function ShopDetails() {
             );
 
             setProductLids(resData.product.product_lid_options);
+            
             setProductId(resData.product.id);
+            setUnitType(resData?.product?.unit_type || "weight");
 
             const firstVariant = resData.product.product_variants.filter(
                 (v) => v.brand_id === firstBrand?.id
@@ -236,6 +240,10 @@ function ShopDetails() {
             setProductVariants(resData?.product?.product_variants || [])
             setProductLids(resData?.product?.product_lid_options || [])
             setProductId(resData?.product?.id)
+
+            setUnitType(resData?.product?.unit_type || "Pcs");
+
+
             const seletedBrandId = selectedBrand?.id
             if (seletedBrandId && resData?.product?.product_variants?.filter(i => i.brand_id === seletedBrandId)) {
                 console.log(true);
@@ -292,6 +300,8 @@ function ShopDetails() {
     // Fetch product details by ID when the component mounts
 
     useEffect(() => {
+
+
         if (id) {
             fetchDataById(id); // Call the function with the ID
             fetchReviewById(id)
@@ -698,40 +708,41 @@ function ShopDetails() {
 
                         <form onSubmit={handleSubmit} className='max-w-130 w-full flex flex-col gap-5 '>
                             {/* Quantity Selection */}
-                            <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
-                                <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center">Pieces</p>
-                                <div className="flex flex-wrap gap-4 justify-start p-1 px-2 items-center">
-                                    {selectedProductVariants && selectedProductVariants.length > 0 ? (
-                                        selectedProductVariants.map((variant, index) => (
-                                            <div key={variant.id} className="flex flex-row items-center gap-2">
-                                                <input
-                                                    id={`variant-${variant.id}`}
-                                                    type="radio"
-                                                    name="variant"
-                                                    value={variant.id}
-                                                    checked={selectedVariantId === variant.id}
-                                                    // defaultChecked={true}
-                                                    onChange={() => {
-                                                        setQuantity(variant.pack_size);
-                                                        setSelectedVariantId(variant.id);
-                                                        setSelectedVariantPrice(Number(variant.price_per_piece ?? variant.price ?? 0));
-                                                        setSelectedVariant(variant.pack_size);
-                                                        // Reset selected size when variant changes
-                                                        setSelectedSize(null);
-                                                        // If variant has sizes, select first size by default
-                                                        if (variant.variantSizes && variant.variantSizes.length > 0) {
-                                                            setSelectedSize(variant.variantSizes[0].size.size);
-                                                        }
-                                                    }}
-                                                />
-                                                <label htmlFor={`variant-${variant.id}`}>{variant.pack_size} Pcs</label>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p>No variants available.</p>
-                                    )}
-                                </div>
-                            </div>
+                          <div className="my-form border w-full border-[#1E7773] rounded-full flex items-stretch">
+  <p className="my-form-heading bg-[#1E7773] rounded-l-full h-full p-1 px-5 flex items-center">
+    {unitType}
+  </p>
+  <div className="flex flex-wrap gap-4 justify-start p-1 px-2 items-center">
+    {selectedProductVariants && selectedProductVariants.length > 0 ? (
+      selectedProductVariants.map((variant, index) => (
+        <div key={variant.id} className="flex flex-row items-center gap-2">
+          <input
+            id={`variant-${variant.id}`}
+            type="radio"
+            name="variant"
+            value={variant.id}
+            checked={selectedVariantId === variant.id}
+            onChange={() => {
+              setQuantity(variant.pack_size);
+              setSelectedVariantId(variant.id);
+              setSelectedVariantPrice(Number(variant.price_per_piece ?? variant.price ?? 0));
+              setSelectedVariant(variant.pack_size);
+              setSelectedSize(null);
+              if (variant.variantSizes && variant.variantSizes.length > 0) {
+                setSelectedSize(variant.variantSizes[0].size.size);
+              }
+            }}
+          />
+          <label htmlFor={`variant-${variant.id}`}>
+              {variant.pack_size} {variant.name}
+          </label>
+        </div>
+      ))
+    ) : (
+      <p>No variants available.</p>
+    )}
+  </div>
+</div>
 
                             {/* Variant Size Selection Dropdown */}
                             {selectedVariantId && (
@@ -807,7 +818,7 @@ function ShopDetails() {
 
                                 <button
                                     className='p-2 pt-3 px-20 bg-[#1E7773] cursor-pointer w-full lg:text-[15px] font-bazaar text-xs rounded-md'
-                                    onClick={() => handleAddCart(productDetail.product)}
+                                    onClick={() => productDetail?.product && handleAddCart(productDetail.product)}
                                 >
                                     ADD TO CART
                                 </button>

@@ -90,9 +90,7 @@ export const CartProvider = ({ children }) => {
           const productSubTotal =
             Number(item.price_per_piece || 0) +
             Number(item.lid_Price || 0) +
-            Number(item.option_Price || 0) +
-            Number(item.printing_price || 0) +
-            Number(item?.packaging_options?.price || 0);
+            Number(item.option_Price || 0);
           // console.log("packaging_optionspackaging_options", productSubTotal)
 
 
@@ -128,8 +126,8 @@ export const CartProvider = ({ children }) => {
             const newTotalPieces = validPackSize * item.product_quantity;
             const newPricePerPiece = Number(selectedVariant.price_per_piece) || 0;
             const newProductTotal = item.lid_Price
-              ? newTotalPieces * (newPricePerPiece + Number(item.lid_Price) + Number(item.option_Price || 0) + Number(item?.packaging_options?.price || 0))
-              : newTotalPieces * (newPricePerPiece + Number(item.option_Price || 0) + Number(item?.packaging_options?.price || 0));
+              ? newTotalPieces * (newPricePerPiece + Number(item.lid_Price) + Number(item.option_Price || 0))
+              : newTotalPieces * (newPricePerPiece + Number(item.option_Price || 0));
 
             return {
               ...item,
