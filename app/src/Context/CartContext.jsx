@@ -25,57 +25,62 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (
+  product_id,
+  product_name,
+  printing_price,
+  product_quantity,
+  pack_size,
+  total_pieces,
+  price_per_piece,
+  product_img,
+  product_total,
+  product_variants,
+  product_color,
+  product_size,
+  logo,
+  product_options,
+  product_lids,
+  lid,
+  lid_Price,
+  customizeDetail,
+  option_Price,
+  bundle_status,
+  order_limit,
+  packaging_options
+) => {
+  // Select the variant based on pack_size, fallback to first variant if not found
+  const selectedVariant = product_variants?.find(v => v.pack_size == pack_size) || product_variants?.[0];
+  const finalPricePerPiece = price_per_piece ?? Number(selectedVariant?.price_per_piece || 0);
+
+  const newItem = {
+    id: uuidv4(),
     product_id,
     product_name,
-    printing_price,
     product_quantity,
     pack_size,
+    printing_price,
     total_pieces,
-    price_per_piece,
+    price_per_piece: finalPricePerPiece,
     product_img,
     product_total,
     product_variants,
-    product_color,
-    product_size,
-    logo,
-    product_options,
-    product_lids,
-    lid,
-    lid_Price,
-    customizeDetail,
-    option_Price,
-    bundle_status,
-    order_limit,
-    packaging_options
-  ) => {
-    // console.log("product_totalproduct_total" , product_total)
-    const newItem = {
-      id: uuidv4(),
-      product_id,
-      product_name,
-      product_quantity,
-      pack_size,
-      printing_price,
-      total_pieces,
-      price_per_piece,
-      product_img,
-      product_total,
-      product_variants,
-      product_color: product_color || null,
-      product_size: product_size || null,
-      logo: logo || null,
-      product_options: product_options || null,
-      product_lids: product_lids || null,
-      lid: lid || null,
-      lid_Price: lid_Price || 0,
-      customizeDetail: customizeDetail || null,
-      option_Price: option_Price || 0,
-      bundle_status: bundle_status ?? false,
-      order_limit: order_limit ?? 1000,
-      packaging_options: packaging_options || null,
-    };
-    setCartItems((prev) => [...prev, newItem]);
+    product_color: product_color || null,
+    product_size: product_size || null,
+    logo: logo || null,
+    product_options: product_options || null,
+    product_lids: product_lids || null,
+    lid: lid || null,
+    lid_Price: lid_Price || 0,
+    customizeDetail: customizeDetail || null,
+    option_Price: option_Price || 0,
+    bundle_status: bundle_status ?? false,
+    order_limit: order_limit ?? 1000,
+    packaging_options: packaging_options || null,
   };
+
+  setCartItems((prev) => [...prev, newItem]);
+};
+
 
   const updateQuantity = (itemId, quantity) => {
     setCartItems((prevItems) =>
