@@ -67,33 +67,41 @@ useEffect(() => {
   //   🛒 Add To Cart
   // ----------------------------------------
   const handleAddCart = (product) => {
-    const total =
-      (Number(product.payable_amount) * Number(subQuantity)).toFixed(2);
+  if (!product) return;
 
-    addToCart(
-      product.id,
-      product.name,
-      subQuantity,
-      null,
-      subQuantity,
-      Number(product.payable_amount),
-      selectedImage,
-      total,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      true
-    );
+  const pricePerPiece = Number(product.payable_amount) || 0;
+  const quantity = Number(subQuantity) || 1;
 
-    setIsCartModalOpen(true);
-  };
+  const total = (pricePerPiece * quantity).toFixed(2);
+
+  addToCart(
+    product.id,                 // product_id
+    product.name,               // product_name
+    0,                          // printing_price
+    quantity,                   // product_quantity
+    null,                       // pack_size
+    quantity,                   // total_pieces
+    pricePerPiece,              // price_per_piece
+    selectedImage,              // product_img
+    Number(total),              // product_total
+    null,                       // product_variants
+    null,                       // product_color
+    null,                       // product_size
+    null,                       // logo
+    null,                       // product_options
+    null,                       // product_lids
+    null,                       // lid
+    0,                          // lid_Price
+    null,                       // customizeDetail
+    0,                          // option_Price
+    true,                       // bundle_status ✅ (important)
+    product.order_limit || 1000,// order_limit
+    null                        // packaging_options
+  );
+
+  setIsCartModalOpen(true);
+};
+
 
   // ----------------------------------------
   //   📲 WhatsApp Share
