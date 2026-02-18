@@ -115,7 +115,7 @@ setUnitType(resData?.product?.unit_type || "Pcs");
                 setSelectedVariantPrice(Number(firstVariant.price_per_piece ?? firstVariant.price ?? 0));
                 setSelectedVariant(firstVariant.pack_size);
             }
-        } catch (error) {
+        } catch (error) {   
             console.log("Product Fetch Error →", error);
         }
 
@@ -236,7 +236,7 @@ setUnitType(resData?.product?.unit_type || "Pcs");
             setProductVariants(resData?.product?.product_variants || [])
             setProductLids(resData?.product?.product_lid_options || [])
             setProductId(resData?.product?.id)
-            setUnitType(resData?.product?.unit_type || "Pcs");
+            setUnitType(resData?.product?.unit_type || "weight");
             const seletedBrandId = selectedBrand?.id
             if (seletedBrandId && resData?.product?.product_variants?.filter(i => i.brand_id === seletedBrandId)) {
                 console.log(true);
@@ -654,7 +654,7 @@ setUnitType(resData?.product?.unit_type || "Pcs");
                             <p className='text-sm text-gray-300'>
                                 {productDetail?.product?.stock_status === 1 ? "In Stock" : "Out Of Stock"}
                             </p>                         <h1 className='md:text-5xl text-3xl font-semibold'>
-                                {productDetail?.product?.name + '111' || 'Product Name'}
+                                {productDetail?.product?.name + '' || 'Product Name'}
                                 {console.log(productDetail)}
                             </h1>
 
@@ -860,7 +860,7 @@ setUnitType(resData?.product?.unit_type || "Pcs");
                                 }}
                             />
                             <label htmlFor={`lid-${lid.id}`}>
-                                {lid.name} {lid.pack_size ? `${lid.pack_size} Pcs` : ''}
+                                {lid.name} {lid.pack_size ? `${lid.pack_size} weight` : ''}
                             </label>
                         </div>
                     ))}
